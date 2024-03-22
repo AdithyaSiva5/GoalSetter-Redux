@@ -25,11 +25,12 @@ const registerUser = asyncHandler(async (req,res) =>{
       })
       if(user){
         res.status(201).json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            token: generateToken(user._id)
-        })
+          _id: user.id,
+          name: user.name,
+          email: user.email,
+          profileUrl: user.profileUrl,
+          token: generateToken(user._id),
+        });
       }else{
         res.status(400)
         throw new Error('Invalid user data')
@@ -39,24 +40,43 @@ const registerUser = asyncHandler(async (req,res) =>{
 const loginUser = asyncHandler(async (req, res) => {
     const {email,password} = req.body;
     const user = await User.findOne({email})
+
+    if (!user) {
+      res.status(400);
+      throw new Error("User not found");
+    }
+
+    if (user.isBlock) {
+      res.status(400);
+      throw new Error("Blocked By Admin");
+    }else{
     
     if(user &&  (await bcrypt.compare(password, user.password))){
         res.json({
           _id: user.id,
           name: user.name,
           email: user.email,
+          profileUrl: user.profileUrl,
           token: generateToken(user._id),
         });
     }else{
         res.status(400);
         throw new Error("Invalid credentials");
-
     }
+  }
 
 })
 
 const getMe = asyncHandler(async (req, res) => {
     res.status(200).json(req.user)
+})
+
+const profileUpload = asyncHandler(async (req,res) =>{
+  const url = req.body.url
+  await User.findByIdAndUpdate(req.user.id,{
+    profileUrl: url
+  })
+  res.status(200).json(req.user)
 })
 
 //Generate JWT
@@ -70,4 +90,5 @@ module.exports = {
   registerUser,
   loginUser,
   getMe,
+  profileUpload,
 };

@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const userSchema = mongoose.Schema(
+const adminSchema = mongoose.Schema(
   {
     name: {
       type: String,
@@ -15,16 +15,10 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, "Please add a password"],
     },
-    profileUrl: {
-      type: String,
-    },
-    isBlock: {
-      type: Boolean,
-      default: false,
-    },
   },
   {
     timestamps: true,
   }
 );
-module.exports = mongoose.model('User',userSchema)
+
+module.exports = mongoose.model("Admin", adminSchema);
